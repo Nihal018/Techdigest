@@ -1,4 +1,3 @@
-// src/services/paper.service.ts
 import { IPaper, Paper } from "../models/paper.model";
 import { ArxivService } from "./arxiv.service";
 
@@ -36,6 +35,15 @@ export class PaperService {
       }
     } catch (error) {
       console.error("Error syncing papers:", error);
+      throw error;
+    }
+  }
+  async findPaperById(id: string): Promise<IPaper | null> {
+    try {
+      const paper = await Paper.findById(id);
+      return paper;
+    } catch (error) {
+      console.error("Error finding paper by ID:", error);
       throw error;
     }
   }

@@ -27,14 +27,23 @@ export class ArxivService {
   }
 
   private transformArxivResponse(data: any) {
-    const entries = data.feed.entry || [];
+    if (!data.feed || !data.feed.entry) {
+      console.log("No entries found in arXiv response");
+      return [];
+    }
+
+    const entries = Array.isArray(data.feed.entry)
+      ? data.feed.entry
+      : [data.feed.entry];
 
     return entries.map((entry: any) => ({
       arxivId: entry.id[0].split("/abs/")[1],
       title: entry.title[0].trim(),
       authors: entry.author.map((author: any) => author.name[0]),
       abstract: entry.summary[0].trim(),
-      categories: entry.category.map((cat: any) => cat.$.term),
+      categories: entry.category
+        ? entry.category.map((cat: any) => cat.$.term)
+        : [],
       publishedDate: new Date(entry.published[0]),
     }));
   }
