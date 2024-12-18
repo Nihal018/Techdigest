@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PaperService } from "../services/paper.service";
-import { json } from "stream/consumers";
 
 export class PaperController {
   private paperService: PaperService;

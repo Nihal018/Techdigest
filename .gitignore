@@ -1,0 +1,25 @@
+
+# Node.js
+node_modules/
+npm-debug.log
+*.log
+*.lock
+
+# TypeScript
+*.js 
+*.js.map 
+
+# Testing
+coverage/
+
+
+# Build artifacts
+dist/
+build/
+
+# Local environment variables
+.env
+.env.*
+
+# Mac OS specific
+.DS_Store
