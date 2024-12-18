@@ -1,24 +1,42 @@
 // src/services/paper.service.ts
-import { Paper, PaperQuery } from "../types/paper.types";
+import { IPaper, Paper } from "../models/paper.model";
+import { ArxivService } from "./arxiv.service";
 
 export class PaperService {
-  private papers: Paper[] = [];
+  private arxivService: ArxivService;
 
-  async findPapers(query: PaperQuery): Promise<Paper[]> {
-    // For now, return mock data
-    return [
-      {
-        id: "1",
-        title: "Sample Paper",
-        authors: ["John Doe"],
-        abstract: "This is a sample abstract",
-        publishedDate: new Date(),
-      },
-    ];
+  constructor() {
+    this.arxivService = new ArxivService();
   }
 
-  async findPaperById(id: string): Promise<Paper | null> {
-    const paper = this.papers.find((p) => p.id === id);
-    return paper || null;
+  async findPapers(query: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }): Promise<IPaper[]> {
+    const { page = 1, limit = 10, category } = query;
+
+    const filter = category ? { categories: category } : {};
+
+    // For now, return mock data
+    return Paper.find(filter)
+      .sort({ publishedDate: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit);
+  }
+
+  async syncPapers(): Promise<void> {
+    try {
+      const papers = await this.arxivService.fetchRecentPapers();
+      for (const paper of papers) {
+        await Paper.findOneAndUpdate({ arxivId: paper.arxivId }, paper, {
+          upsert: true,
+          new: true,
+        });
+      }
+    } catch (error) {
+      console.error("Error syncing papers:", error);
+      throw error;
+    }
   }
 }
