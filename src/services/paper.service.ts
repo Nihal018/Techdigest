@@ -26,13 +26,22 @@ export class PaperService {
 
   async syncPapers(): Promise<void> {
     try {
+      console.log("Starting paper synchronization");
       const papers = await this.arxivService.fetchRecentPapers();
+      console.log(`Fetched ${papers.length} papers from arXiv`);
+
       for (const paper of papers) {
-        await Paper.findOneAndUpdate({ arxivId: paper.arxivId }, paper, {
-          upsert: true,
-          new: true,
-        });
+        console.log(`Attempting to save paper with arXiv ID: ${paper.arxivId}`);
+        const result = await Paper.findOneAndUpdate(
+          { arxivId: paper.arxivId },
+          paper,
+          { upsert: true, new: true }
+        );
+        console.log(`Saved paper with MongoDB ID: ${result._id}`);
       }
+
+      const count = await Paper.countDocuments();
+      console.log(`Total papers in database after sync: ${count}`);
     } catch (error) {
       console.error("Error syncing papers:", error);
       throw error;
