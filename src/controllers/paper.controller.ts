@@ -25,4 +25,24 @@ export class PaperController {
       });
     }
   }
+  async getPaperById(req: Request, res: Response): Promise<void> {
+    try {
+      const paper = await this.paperService.findPaperById(req.params.id);
+
+      if (!paper) {
+        res.status(404).json({
+          success: false,
+          message: "Paper not found",
+        });
+        return;
+      }
+
+      res.json({ success: true, data: paper });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Failed to fetch paper",
+      });
+    }
+  }
 }
